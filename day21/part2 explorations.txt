@@ -1,0 +1,255 @@
+"""
+# NOT a => 10690
+....@............
+#####.#..########
+
+# (NOT a) OR (NOT c AND a AND d) => 44787
+......@..........
+#####.#.##..#####
+
+
+# (NOT a) OR (NOT c AND a AND d AND e) => 19113
+....@............
+#####.#..########
+
+# (NOT a AND b AND NOT c and NOT d) OR (NOT a) => 22696
+....@............
+#####.#..########
+
+# D => 6829
+@................
+#####.#..########
+
+# E => 5622
+@................
+#####.###########
+
+# (NOT a) AND E => 12406
+....@............
+#####.#..########
+
+# B AND D AND F => 7903
+....@............
+#####...#########
+
+# (B AND D AND F) OR (F AND G)
+
+
+-=-=-=-=-=-=-=--=-=-=-=-=-=-=-
+
+#######.#########
+NOT A *
+NOT B
+NOT C
+
+
+#####...#########
+NOT A AND NOT B AND NOT C
+NOT A AND NOT C
+NOT A AND NOT B
+NOT B AND NOT C
+NOT A *
+
+
+#####.#..########
+A AND B AND D AND NOT C
+A AND B AND NOT C
+A AND D AND NOT C *
+
+
+#####.#.##..#####
+NOT C AND A AND D AND G *
+
+#####..##..#..###
+-NOT A- ...fails...
+NOT B AND NOT C AND D ?
+
+best so far: 98586
+OR F J
+OR G J
+OR I J
+NOT J J
+AND A J
+AND D J
+AND E J
+AND H J
+NOT C T
+AND A T
+AND D T
+AND G T
+OR T J
+NOT A T
+OR T J
+
+
+another decent: 94262
+OR B J
+OR C J
+OR F J
+OR G J
+OR I J
+NOT J J
+AND D J
+AND E J
+NOT C T
+AND D T
+AND G T
+OR T J
+NOT A T
+OR T J
+
+
+...@ABCDEFGHI....
+#####..##..#..###
+A AND NOT B AND NOT C AND D AND E AND NOT F AND NOT G AND H AND NOT I
+A AND D AND E AND H AND (NOT B AND NOT C AND NOT F AND NOT G AND NOT I)
+A AND D AND E AND H AND NOT (B OR C OR F OR G OR I)
+too long?
+
+
+#####.#.##..#####
+also will need a long pattern, complementary to above?
+
+"""
+part2_commands = """
+# a
+NOT A J
+
+# + D for safe landing
+AND D J
+RUN
+""".lstrip()
+
+"""
+working from best above, need don't jump when ##.#.## (ABcDeFG)
+
+best J = NOT (F OR G OR I) AND (A AND D AND E AND H) OR (A AND (NOT C) AND D AND G) OR (NOT A)
+
+J AND NOT ...
+   A AND B AND D AND F AND G AND NOT C AND NOT E
+encoding more than one NOT is a pain so try with C and then again with E
+
+not c:
+NOT C T
+AND A T
+AND B T
+AND D T
+AND F T
+AND G T
+NOT T T
+AND T J
+
+!!!!!!!!!!!!!!!!!
+i found hack! i can raise the maximum number of allowed instructions!!!!
+just change the 15 i found randomly in the middle of the code to something higher...
+!!!!!!!!!!!!!!!!!
+
+the above worked to get me to a new pattern! almost home free?
+
+need to clear
+
+....@............
+#####.#.#.##..###
+
+by jumping earlier. OR with J...
+
+#.#.#.##.
+AbCdEfGHi
+
+try NOT B, NOT D, NOT F, NOT I
+
+NOT B T
+AND A T
+AND C T
+AND E T
+AND G T
+AND H T
+OR T J
+
+-------
+update: okay, maybe there is a hard instruction limit. the below probably would work but is too big
+
+OR F J
+OR G J
+OR I J
+NOT J J
+AND A J
+AND D J
+AND E J
+AND H J
+NOT C T
+AND A T
+AND D T
+AND G T
+OR T J
+NOT A T
+OR T J
+NOT C T
+AND A T
+AND B T
+AND D T
+AND F T
+AND G T
+NOT T T
+AND T J
+NOT B T
+AND A T
+AND C T
+AND E T
+AND G T
+AND H T
+OR T J
+
+J = ((NOT (F OR G OR I) AND A AND D AND E AND H) OR (NOT C AND A AND D AND G) OR (NOT A)) AND (C OR NOT A OR NOT B OR NOT D OR NOT F OR NOT G)
+     OR NOT B AND A AND C AND E AND G AND H
+
+     YUCK!
+
+**** starting over
+a | cef | be | bcD | DcegF | cfg
+
+try requiring D for everything, seems okay
+
+D AND (a | cef | be | bc | cegF | cfg)
+D AND (a | c (ef | egF | fg) | b (e | g))
+
+best so far
+
+# a
+NOT A J
+# cef
+OR C T
+OR E T
+OR F T
+NOT T T
+OR T J
+# be
+NOT B T
+NOT T T
+OR E T
+NOT T T
+OR T J
+# bcD
+NOT B T
+NOT T T
+OR C T
+NOT T T
+AND D T
+OR T J
+# DcegF
+NOT D T
+OR C T
+OR E T
+OR G T
+NOT T T
+AND F T
+OR T J
+# cfg
+#OR C T
+#OR F T
+#OR G T
+#NOT T T
+#OR T J
+RUN
+
+"""
